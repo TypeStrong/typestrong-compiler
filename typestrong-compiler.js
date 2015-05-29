@@ -19,6 +19,12 @@ var compiler;
         var pushToArgs = _.partial(ifTruthyPush, args);
         pushToArgs(options.target, "--target", options.target);
         pushToArgs(options.removeComments, "--removeComments");
+        pushToArgs(options.outDir, "--outDir", options.outDir);
+        pushToArgs(options.out, "--out", options.out);
+        pushToArgs(options.sourceMap, "--sourceMap");
+        pushToArgs(options.sourceRoot, "--sourceRoot", options.sourceRoot);
+        pushToArgs(options.mapRoot, "--mapRoot", options.mapRoot);
+        pushToArgs(options.emitDecoratorMetadata, "--emitDecoratorMetadata");
     }
     function ifTruthyPush(pushToThis, thingToTest) {
         var whatToPush = [];

@@ -42,12 +42,67 @@ export var argumentsTests: nodeunit.ITestGroup = {
     can_set_removeComments: (test: nodeunit.Test) => {
         test.expect(1);
         compiler.compile({removeComments: true}).then((result) => {
-          test.ok(contains(result.tscArgs, '--removeComments'));
+          test.ok(containsSuccessively(result.tscArgs, '--removeComments'));
           test.done();
         }).catch((error) => {
           test.done(error);
         });
-    }
+    },
+    can_set_outDir: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({outDir: "out/"}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--outDir', 'out/'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_out: (test: nodeunit.Test) => {
+        // despite that it makes Bas mad...
+        test.expect(1);
+        compiler.compile({out: "myOut.js"}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--out', 'myOut.js'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_sourceMap: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({sourceMap: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--sourceMap'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_sourceRoot: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({sourceRoot: "../sourceRoot/"}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--sourceRoot', "../sourceRoot/"));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_mapRoot: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({mapRoot: "../mapRoot/"}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--mapRoot', "../mapRoot/"));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_emitDecoratorMetadata: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({emitDecoratorMetadata: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--emitDecoratorMetadata'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
 };
 
 function contains<T>(searchIn: T[], searchFor: T) {
@@ -59,6 +114,9 @@ function containsSuccessively<T>(searchIn: T[], searchFor: T, ...thenSearchFor: 
     var index = searchIn.indexOf(searchFor);
     if (index === -1) {
       return false;
+    }
+    if (!thenSearchFor || thenSearchFor.length === 0) {
+      return true;
     }
     if (index + 1 === searchIn.length) {
       return false;

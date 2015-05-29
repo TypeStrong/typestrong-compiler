@@ -37,12 +37,66 @@ exports.argumentsTests = {
     can_set_removeComments: function (test) {
         test.expect(1);
         typestrong_compiler_1.default.compile({ removeComments: true }).then(function (result) {
-            test.ok(contains(result.tscArgs, '--removeComments'));
+            test.ok(containsSuccessively(result.tscArgs, '--removeComments'));
             test.done();
         }).catch(function (error) {
             test.done(error);
         });
-    }
+    },
+    can_set_outDir: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ outDir: "out/" }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--outDir', 'out/'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_out: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ out: "myOut.js" }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--out', 'myOut.js'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_sourceMap: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ sourceMap: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--sourceMap'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_sourceRoot: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ sourceRoot: "../sourceRoot/" }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--sourceRoot', "../sourceRoot/"));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_mapRoot: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ mapRoot: "../mapRoot/" }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--mapRoot', "../mapRoot/"));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_emitDecoratorMetadata: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ emitDecoratorMetadata: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--emitDecoratorMetadata'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
 };
 function contains(searchIn, searchFor) {
     return (searchIn.indexOf(searchFor) > -1);
@@ -56,6 +110,9 @@ function containsSuccessively(searchIn, searchFor) {
         var index = searchIn.indexOf(searchFor);
         if (index === -1) {
             return false;
+        }
+        if (!thenSearchFor || thenSearchFor.length === 0) {
+            return true;
         }
         if (index + 1 === searchIn.length) {
             return false;

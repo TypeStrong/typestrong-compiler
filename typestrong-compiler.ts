@@ -25,6 +25,13 @@ module compiler {
 
     pushToArgs(options.target,"--target", options.target);
     pushToArgs(options.removeComments,"--removeComments");
+    pushToArgs(options.outDir,"--outDir",options.outDir);
+    pushToArgs(options.out,"--out",options.out);
+    pushToArgs(options.sourceMap,"--sourceMap");
+    pushToArgs(options.sourceRoot,"--sourceRoot", options.sourceRoot);
+    pushToArgs(options.mapRoot,"--mapRoot", options.mapRoot);
+    pushToArgs(options.emitDecoratorMetadata,"--emitDecoratorMetadata");
+
   }
 
   function ifTruthyPush<T>( pushToThis: T[], thingToTest: any, ...whatToPush: T[]) {
