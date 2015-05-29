@@ -1,0 +1,26 @@
+{
+    "version": "1.5.0-beta",
+    "compilerOptions": {
+        "target": "es5",
+        "module": "commonjs",
+        "declaration": false,
+        "noImplicitAny": true,
+        "removeComments": true,
+        "noLib": false,
+        "preserveConstEnums": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "filesGlob": [
+        "./**/*.ts",
+        "!./node_modules/**/*.ts"
+    ],
+    "files": [
+        "./tests/fakeTsc.ts",
+        "./tests/tests.ts",
+        "./typestrong-compiler.ts",
+        "./typings/es6-promise/es6-promise.d.ts",
+        "./typings/lodash/lodash.d.ts",
+        "./typings/nodeunit/nodeunit.d.ts",
+        "./typings/tsd.d.ts"
+    ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "typestrong-compiler",
+  "version": "0.0.1",
+  "description": "TypeStrong wrapper for TypeScript Compiler (tsc)",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ./node_modules/nodeunit/bin/nodeunit tests/tests.js"
+  },
+  "keywords": [
+    "TypeScript",
+    "Compiler",
+    "TypeStrong"
+  ],
+  "author": "Steve Ognibene",
+  "license": "MIT",
+  "dependencies": {
+    "es6-promise": "^2.1.1",
+    "lodash": "^3.9.3"
+  },
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "typescript": "^1.5.0-beta"
+  }
+}
