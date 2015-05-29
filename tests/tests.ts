@@ -103,6 +103,104 @@ export var argumentsTests: nodeunit.ITestGroup = {
           test.done(error);
         });
     },
+    can_set_declaration: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({declaration: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--declaration'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_noImplicitAny: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({noImplicitAny: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--noImplicitAny'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },can_set_noResolve: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({noResolve: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--noResolve'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_noEmitOnError: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({noEmitOnError: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--noEmitOnError'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_noEmit: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({noEmit: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--noEmit'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_preserveConstEnums: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({preserveConstEnums: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--preserveConstEnums'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_suppressImplicitAnyIndexErrors: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({suppressImplicitAnyIndexErrors: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--suppressImplicitAnyIndexErrors'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_inlineSources: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({inlineSources: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--inlineSources'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_inlineSourceMap: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({inlineSourceMap: true}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--inlineSourceMap'));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_newLine: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({newLine: "LF"}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--newLine', "LF"));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    },
+    can_set_module: (test: nodeunit.Test) => {
+        test.expect(1);
+        compiler.compile({module: "amd"}).then((result) => {
+          test.ok(containsSuccessively(result.tscArgs, '--module', "amd"));
+          test.done();
+        }).catch((error) => {
+          test.done(error);
+        });
+    }
 };
 
 function contains<T>(searchIn: T[], searchFor: T) {

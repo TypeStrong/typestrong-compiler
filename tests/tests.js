@@ -97,6 +97,104 @@ exports.argumentsTests = {
             test.done(error);
         });
     },
+    can_set_declaration: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ declaration: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--declaration'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_noImplicitAny: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ noImplicitAny: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--noImplicitAny'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    }, can_set_noResolve: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ noResolve: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--noResolve'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_noEmitOnError: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ noEmitOnError: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--noEmitOnError'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_noEmit: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ noEmit: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--noEmit'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_preserveConstEnums: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ preserveConstEnums: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--preserveConstEnums'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_suppressImplicitAnyIndexErrors: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ suppressImplicitAnyIndexErrors: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--suppressImplicitAnyIndexErrors'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_inlineSources: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ inlineSources: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--inlineSources'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_inlineSourceMap: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ inlineSourceMap: true }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--inlineSourceMap'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_newLine: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ newLine: "LF" }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--newLine', "LF"));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_set_module: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ module: "amd" }).then(function (result) {
+            test.ok(containsSuccessively(result.tscArgs, '--module', "amd"));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    }
 };
 function contains(searchIn, searchFor) {
     return (searchIn.indexOf(searchFor) > -1);

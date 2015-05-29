@@ -4,7 +4,6 @@ import * as _ from 'lodash';
 module compiler {
   "use strict";
 
-  //export const x = "";
   export function compile(normalizedOptions: compilerOptions) : Promise<compilerResult> {
     return new Promise<compilerResult>((resolve, reject) => {
       var args: string[] = [];
@@ -21,16 +20,27 @@ module compiler {
   }
 
   function extractAndSetArgs(options: compilerOptions, args: string[]) {
-    var pushToArgs : (thingToTest: any, ...whatToPush: string[]) => void = <any>_.partial(ifTruthyPush, args);
+    var maybePushToArgs : (thingToTest: any, ...whatToPush: string[]) => void = <any>_.partial(ifTruthyPush, args);
 
-    pushToArgs(options.target,"--target", options.target);
-    pushToArgs(options.removeComments,"--removeComments");
-    pushToArgs(options.outDir,"--outDir",options.outDir);
-    pushToArgs(options.out,"--out",options.out);
-    pushToArgs(options.sourceMap,"--sourceMap");
-    pushToArgs(options.sourceRoot,"--sourceRoot", options.sourceRoot);
-    pushToArgs(options.mapRoot,"--mapRoot", options.mapRoot);
-    pushToArgs(options.emitDecoratorMetadata,"--emitDecoratorMetadata");
+    maybePushToArgs(options.target,"--target", options.target);
+    maybePushToArgs(options.removeComments,"--removeComments");
+    maybePushToArgs(options.outDir,"--outDir",options.outDir);
+    maybePushToArgs(options.out,"--out",options.out);
+    maybePushToArgs(options.sourceMap,"--sourceMap");
+    maybePushToArgs(options.sourceRoot,"--sourceRoot", options.sourceRoot);
+    maybePushToArgs(options.mapRoot,"--mapRoot", options.mapRoot);
+    maybePushToArgs(options.emitDecoratorMetadata,"--emitDecoratorMetadata");
+    maybePushToArgs(options.declaration,"--declaration");
+    maybePushToArgs(options.noImplicitAny,"--noImplicitAny");
+    maybePushToArgs(options.noResolve,"--noResolve");
+    maybePushToArgs(options.noEmitOnError,"--noEmitOnError");
+    maybePushToArgs(options.noEmit,"--noEmit");
+    maybePushToArgs(options.preserveConstEnums,"--preserveConstEnums");
+    maybePushToArgs(options.suppressImplicitAnyIndexErrors,"--suppressImplicitAnyIndexErrors");
+    maybePushToArgs(options.inlineSources,"--inlineSources");
+    maybePushToArgs(options.inlineSourceMap,"--inlineSourceMap");
+    maybePushToArgs(options.newLine,"--newLine", options.newLine);
+    maybePushToArgs(options.module,"--module", options.module);
 
   }
 
