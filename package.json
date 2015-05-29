@@ -2,9 +2,9 @@
   "name": "typestrong-compiler",
   "version": "0.0.1",
   "description": "TypeStrong wrapper for TypeScript Compiler (tsc)",
-  "main": "index.js",
   "scripts": {
-    "test": "node ./node_modules/nodeunit/bin/nodeunit tests/tests.js"
+    "test": "node ./node_modules/nodeunit/bin/nodeunit tests/tests.js",
+    "build": "node ./node_modules/typescript/bin/tsc --project ."
   },
   "keywords": [
     "TypeScript",
