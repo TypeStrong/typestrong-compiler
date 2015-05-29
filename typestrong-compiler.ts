@@ -1,5 +1,8 @@
 import {Promise as Promise} from 'es6-promise';
 import * as _ from 'lodash';
+import path = require('path');
+import fs = require('fs');
+
 
 module compiler {
   "use strict";
@@ -50,6 +53,25 @@ module compiler {
     }
   }
 
+  function resolveTypeScriptBinPath(): string {
+      var ownRoot = path.resolve(path.dirname((module).filename), '../..');
+      var userRoot = path.resolve(ownRoot, '..', '..');
+      var binSub = path.join('node_modules', 'typescript', 'bin');
+
+      if (fs.existsSync(path.join(userRoot, binSub))) {
+          // Using project override
+          return path.join(userRoot, binSub);
+      }
+      return path.join(ownRoot, binSub);
+  }
+
+
+  function getTsc(binPath: string): string {
+    var pkg = JSON.parse(fs.readFileSync(path.resolve(binPath, '..', 'package.json')).toString());
+    //TODO: log this grunt.log.writeln('Using tsc v' + pkg.version);
+    return path.join(binPath, 'tsc');
+}
+
   interface compilerOptions {
     testOptions?: {testOnly: boolean};
     typeStrongOptions?: {
@@ -79,8 +101,14 @@ module compiler {
 
   interface compilerResult {
     tscArgs: string[];
-    consoleOutput: string;
+    consoleOutput: consoleOutputItem[];
     actualVersion: string;
+  }
+
+  interface consoleOutputItem {
+    source: string;
+    timestamp: Date;
+    content: string;
   }
 
 }

@@ -20,6 +20,7 @@
         "./typestrong-compiler.ts",
         "./typings/es6-promise/es6-promise.d.ts",
         "./typings/lodash/lodash.d.ts",
+        "./typings/node/node.d.ts",
         "./typings/nodeunit/nodeunit.d.ts",
         "./typings/tsd.d.ts"
     ]

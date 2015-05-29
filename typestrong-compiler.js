@@ -1,5 +1,7 @@
 var es6_promise_1 = require('es6-promise');
 var _ = require('lodash');
+var path = require('path');
+var fs = require('fs');
 var compiler;
 (function (compiler) {
     "use strict";
@@ -45,6 +47,19 @@ var compiler;
         if (thingToTest) {
             pushToThis.push.apply(pushToThis, whatToPush);
         }
+    }
+    function resolveTypeScriptBinPath() {
+        var ownRoot = path.resolve(path.dirname((module).filename), '../..');
+        var userRoot = path.resolve(ownRoot, '..', '..');
+        var binSub = path.join('node_modules', 'typescript', 'bin');
+        if (fs.existsSync(path.join(userRoot, binSub))) {
+            return path.join(userRoot, binSub);
+        }
+        return path.join(ownRoot, binSub);
+    }
+    function getTsc(binPath) {
+        var pkg = JSON.parse(fs.readFileSync(path.resolve(binPath, '..', 'package.json')).toString());
+        return path.join(binPath, 'tsc');
     }
 })(compiler || (compiler = {}));
 exports.default = compiler;
