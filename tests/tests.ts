@@ -3,6 +3,7 @@
 import * as nodeunit from 'nodeunit';
 import compiler from '../typestrong-compiler';
 import {Promise as Promise} from 'es6-promise';
+import * as path from 'path';
 
 export var testGroup: nodeunit.ITestGroup = {
     setUp: (callback) => {
@@ -21,6 +22,38 @@ export var testGroup: nodeunit.ITestGroup = {
         test.ok(compiler.compile);
         test.done();
     }
+};
+
+export var compilerIntegrationTests: nodeunit.ITestGroup = {
+  setUp: (callback) => {
+      callback();
+  },
+  tearDown: (callback) => {
+      callback();
+  },
+  can_set_custom_compiler: (test: nodeunit.Test) => {
+      test.expect(1);
+      compiler.compile({typeStrongOptions: {
+          customCompiler: 'this_is_the_custom_compiler'
+        }}).then((result) => {
+        test.strictEqual(result.runtimeOptions.compiler,
+          'this_is_the_custom_compiler');
+        test.done();
+      }).catch((error) => {
+        test.done(error);
+      });
+  },
+  can_resolve_node_modules_compiler: (test: nodeunit.Test) => {
+      test.expect(1);
+      compiler.compile({}).then((result) => {
+        var compilerPath = result.runtimeOptions.compiler.split(path.sep);
+        test.ok(containsSuccessively(compilerPath,
+          'node_modules', 'typescript', 'bin', 'tsc'));
+        test.done();
+      }).catch((error) => {
+        test.done(error);
+      });
+  }
 };
 
 export var argumentsTests: nodeunit.ITestGroup = {

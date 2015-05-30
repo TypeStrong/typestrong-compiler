@@ -1,22 +1,36 @@
 var es6_promise_1 = require('es6-promise');
 var _ = require('lodash');
-var path = require('path');
-var fs = require('fs');
+var locateTSC_1 = require('./locateTSC');
 var compiler;
 (function (compiler) {
     "use strict";
-    function compile(normalizedOptions) {
+    function compile(options) {
         return new es6_promise_1.Promise(function (resolve, reject) {
-            var args = [];
-            extractAndSetArgs(normalizedOptions, args);
-            resolve({
-                tscArgs: args,
+            var result = {
+                tscArgs: [],
                 consoleOutput: null,
-                actualVersion: null
-            });
+                actualVersion: null,
+                runtimeOptions: {
+                    compiler: null
+                }
+            };
+            normalizeOptions(options);
+            extractAndSetArgs(options, result.tscArgs);
+            locateTSC_1.default.locate(options, result);
+            executeCompile(options, result);
+            resolve(result);
         });
     }
     compiler.compile = compile;
+    function executeCompile(options, results) {
+        if (!options.testOptions.testOnly) {
+        }
+    }
+    function normalizeOptions(options) {
+        options = options || {};
+        options.typeStrongOptions = options.typeStrongOptions || {};
+        options.testOptions = options.testOptions || { testOnly: false };
+    }
     function extractAndSetArgs(options, args) {
         var maybePushToArgs = _.partial(ifTruthyPush, args);
         maybePushToArgs(options.target, "--target", options.target);
@@ -47,19 +61,6 @@ var compiler;
         if (thingToTest) {
             pushToThis.push.apply(pushToThis, whatToPush);
         }
-    }
-    function resolveTypeScriptBinPath() {
-        var ownRoot = path.resolve(path.dirname((module).filename), '../..');
-        var userRoot = path.resolve(ownRoot, '..', '..');
-        var binSub = path.join('node_modules', 'typescript', 'bin');
-        if (fs.existsSync(path.join(userRoot, binSub))) {
-            return path.join(userRoot, binSub);
-        }
-        return path.join(ownRoot, binSub);
-    }
-    function getTsc(binPath) {
-        var pkg = JSON.parse(fs.readFileSync(path.resolve(binPath, '..', 'package.json')).toString());
-        return path.join(binPath, 'tsc');
     }
 })(compiler || (compiler = {}));
 exports.default = compiler;

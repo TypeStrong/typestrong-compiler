@@ -1,5 +1,6 @@
 "use strict";
 var typestrong_compiler_1 = require('../typestrong-compiler');
+var path = require('path');
 exports.testGroup = {
     setUp: function (callback) {
         callback();
@@ -16,6 +17,35 @@ exports.testGroup = {
         test.expect(1);
         test.ok(typestrong_compiler_1.default.compile);
         test.done();
+    }
+};
+exports.compilerIntegrationTests = {
+    setUp: function (callback) {
+        callback();
+    },
+    tearDown: function (callback) {
+        callback();
+    },
+    can_set_custom_compiler: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({ typeStrongOptions: {
+                customCompiler: 'this_is_the_custom_compiler'
+            } }).then(function (result) {
+            test.strictEqual(result.runtimeOptions.compiler, 'this_is_the_custom_compiler');
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
+    },
+    can_resolve_node_modules_compiler: function (test) {
+        test.expect(1);
+        typestrong_compiler_1.default.compile({}).then(function (result) {
+            var compilerPath = result.runtimeOptions.compiler.split(path.sep);
+            test.ok(containsSuccessively(compilerPath, 'node_modules', 'typescript', 'bin', 'tsc'));
+            test.done();
+        }).catch(function (error) {
+            test.done(error);
+        });
     }
 };
 exports.argumentsTests = {
