@@ -1,11 +1,11 @@
-import {Promise as Promise} from 'es6-promise';
+import {Promise} from 'es6-promise';
 import * as _ from 'lodash';
 import findTSC from './locateTSC';
 import i from './interfaces';
 import * as utils from './utils';
 import * as fs from 'fs';
-//child_process = require('child_process');
-import {exec as exec} from 'child_process';
+import {execFile} from 'child_process';
+
 
 module compiler {
   "use strict";
@@ -25,28 +25,77 @@ module compiler {
       normalizeOptions(options);
       extractAndSetArgs(options, result.tscArgs);
       findTSC.locate(options, result);
-      executeCompile(options, result);
-
-      resolve(result);
-
+      executeCompile(options, result).then((executeCompileResult) => {
+        resolve(result);
+      }, (executeCompileError) => {
+        reject(executeCompileError);
+      });
     });
   }
 
-  function executeCompile(options: i.compilerOptions, results: i.compilerResult) {
-    if (!options.testOptions.testOnly) {
+  function executeCompile(options: i.compilerOptions, results: i.compilerResult): Promise<i.compilerResult> {
+    return new Promise<i.compilerResult>((resolve, reject) => {
+        if (options.testOptions.testOnly) {
+          resolve(results);
+        }
 
-      // var commandTempfile = utils.getTempFile('tscommand');
-      // if (!commandTempfile) {
-      //   throw new Error('cannot create temp file for tscommand');
-      // }
-      // fs.writeFileSync(commandTempfile, results.tscArgs.join(' '));
-      //
-      //
-      //
-      // exec(results.runtimeOptions.compiler + ' @' + commandTempfile, (err, stdout, stderr) => {
-      //
-      // });
+        let commandTempfile = utils.getTempFile('tscommand');
+        if (!commandTempfile) {
+          throw new Error('cannot create temp file for tscommand');
+        }
+
+        fs.writeFileSync(commandTempfile,
+          [results.tscArgs,...options.files].join(' ')
+          );
+
+        let tsc = execFile(process.execPath,
+          [results.runtimeOptions.compiler,`@${commandTempfile}`],
+          (error, stdout, stderr) => {
+
+            results.consoleOutput = {
+              stdout: stdout,
+              stderr: stderr,
+              error: error
+            };
+
+            if (!options.typeStrongOptions.silent) {
+              console.log(stdout.toString());
+              console.log(stderr.toString());
+              if (error) {
+              console.log(`Error: ${error}`);
+              }
+            }
+
+            if (error === null) {
+                resolve(results);
+            }
+            reject(results);
+          });
+      });
+  }
+
+  function bufferAsStringArray(theBuffer : Buffer) : string[] {
+    if (!theBuffer) {
+      return [];
     }
+    return theBuffer.toString().replace(/\r/g,'').split('\n');
+  }
+
+  export function defaultCompilerOptions() : i.compilerOptions {
+      return {
+        typeStrongOptions: {
+          silent: true
+        },
+        testOptions: {
+          testOnly: false
+        },
+      };
+  }
+
+  export function testCompilerOptions() : i.compilerOptions {
+      var opt = defaultCompilerOptions();
+      opt.testOptions.testOnly = true;
+      return opt;
   }
 
 
@@ -59,10 +108,10 @@ module compiler {
   function extractAndSetArgs(options: i.compilerOptions, args: string[]) {
     var maybePushToArgs : (thingToTest: any, ...whatToPush: string[]) => void = <any>_.partial(ifTruthyPush, args);
 
-    maybePushToArgs(options.target,"--target", options.target);
-    maybePushToArgs(options.removeComments,"--removeComments");
-    maybePushToArgs(options.outDir,"--outDir",options.outDir);
-    maybePushToArgs(options.out,"--out",options.out);
+    maybePushToArgs(options.target,"--target", toLowerOrNull(options.target));
+    maybePushToArgs(options.removeComments, "--removeComments");
+    maybePushToArgs(options.outDir,"--outDir", options.outDir);
+    maybePushToArgs(options.out,"--out", options.out);
     maybePushToArgs(options.sourceMap,"--sourceMap");
     maybePushToArgs(options.sourceRoot,"--sourceRoot", options.sourceRoot);
     maybePushToArgs(options.mapRoot,"--mapRoot", options.mapRoot);
@@ -77,8 +126,15 @@ module compiler {
     maybePushToArgs(options.inlineSources,"--inlineSources");
     maybePushToArgs(options.inlineSourceMap,"--inlineSourceMap");
     maybePushToArgs(options.newLine,"--newLine", options.newLine);
-    maybePushToArgs(options.module,"--module", options.module);
+    maybePushToArgs(options.module,"--module", toLowerOrNull(options.module));
 
+  }
+
+  function toLowerOrNull(input: string) {
+      if (input) {
+          return input.toLocaleLowerCase();
+      }
+      return null;
   }
 
   function ifTruthyPush<T>( pushToThis: T[], thingToTest: any, ...whatToPush: T[]) {

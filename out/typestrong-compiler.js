@@ -20,10 +20,10 @@ var compiler;
             normalizeOptions(options);
             extractAndSetArgs(options, result.tscArgs);
             locateTSC_1.default.locate(options, result);
-            executeCompile(options, result).then(function (executeCompileResult) {
+            executeCompile(options, result).then(function (result) {
                 resolve(result);
-            }, function (executeCompileError) {
-                reject(executeCompileError);
+            }, function (error) {
+                reject(error);
             });
         });
     }
@@ -37,7 +37,7 @@ var compiler;
             if (!commandTempfile) {
                 throw new Error('cannot create temp file for tscommand');
             }
-            fs.writeFileSync(commandTempfile, [results.tscArgs].concat(options.files).join(' '));
+            fs.writeFileSync(commandTempfile, results.tscArgs.concat(options.files).join(' '));
             var tsc = child_process_1.execFile(process.execPath, [results.runtimeOptions.compiler, ("@" + commandTempfile)], function (error, stdout, stderr) {
                 results.consoleOutput = {
                     stdout: stdout,
@@ -47,11 +47,10 @@ var compiler;
                 if (!options.typeStrongOptions.silent) {
                     console.log(stdout.toString());
                     console.log(stderr.toString());
-                    if (error) {
-                        console.log("Error: " + error);
-                    }
+                    console.log(JSON.stringify(error));
                 }
                 if (error === null) {
+                    console.log("resolving happy");
                     resolve(results);
                 }
                 reject(results);

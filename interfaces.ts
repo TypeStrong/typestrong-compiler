@@ -4,7 +4,7 @@ module interfaces {
     testOptions?: {testOnly: boolean};
     typeStrongOptions?: {
       customCompiler?: string;
-      confirmVersion?: boolean;
+      silent?: boolean;
     };
     target?: string;
     removeComments?: boolean;
@@ -25,6 +25,7 @@ module interfaces {
     inlineSourceMap?: boolean;
     newLine?: string;
     module?: string;
+    files? : string[];
   }
 
   export interface runtimeOptions {
@@ -34,15 +35,14 @@ module interfaces {
   export interface compilerResult {
     tscArgs: string[];
     runtimeOptions: runtimeOptions;
-    consoleOutput: consoleOutputItem[];
+    consoleOutput: {
+      stdout: Buffer;
+      stderr: Buffer;
+      error: Error
+    };
     actualVersion: string;
   }
 
-  export interface consoleOutputItem {
-    source: string;
-    timestamp: Date;
-    content: string;
-  }
 
 }
 

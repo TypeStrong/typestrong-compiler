@@ -10,23 +10,20 @@ module locateTSC {
 
   function resolveTypeScriptBinPath(): string {
       var ownRoot = path.resolve(path.dirname((module).filename));
-      var userRoot = path.resolve(ownRoot, '..', '..');
       var binSub = path.join('node_modules', 'typescript', 'bin');
-
-
-      if (fs.existsSync(path.join(userRoot, binSub))) {
-          // Using project override
-          return path.join(userRoot, binSub);
-      }
       return path.join(ownRoot, binSub);
   }
 
-  export function locate(options: i.compilerOptions, results: i.compilerResult) {
+  export function locate(options: i.compilerOptions, results: i.compilerResult): void {
     if (options.typeStrongOptions.customCompiler) {
       results.runtimeOptions.compiler = options.typeStrongOptions.customCompiler;
     } else {
-      var binPath = resolveTypeScriptBinPath();
-      results.runtimeOptions.compiler = path.join(binPath, 'tsc');
+      if (options.testOptions.testOnly) {
+        results.runtimeOptions.compiler = "test_tsc";
+      } else {
+        var binPath = resolveTypeScriptBinPath();
+        results.runtimeOptions.compiler = path.join(binPath, 'tsc');
+      }
     }
   }
 

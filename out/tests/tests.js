@@ -1,5 +1,6 @@
 "use strict";
 var typestrong_compiler_1 = require('../typestrong-compiler');
+var path = require('path');
 exports.testGroup = {
     setUp: function (callback) {
         callback();
@@ -37,11 +38,11 @@ exports.compilerIntegrationTests = {
         });
     },
     can_resolve_node_modules_compiler: function (test) {
-        test.expect(2);
+        test.expect(1);
         var opt = typestrong_compiler_1.default.testCompilerOptions();
         typestrong_compiler_1.default.compile(opt).then(function (result) {
-            test.ok(!!result.runtimeOptions.compiler, "expected compiler value");
-            test.strictEqual(result.runtimeOptions.compiler, 'test_tsc', 'expected to find the test_tsc');
+            var compilerPath = result.runtimeOptions.compiler.split(path.sep);
+            test.ok(containsSuccessively(compilerPath, 'node_modules', 'typescript', 'bin', 'tsc'));
             test.done();
         }, function (error) {
             test.done(error);
@@ -53,9 +54,11 @@ exports.compilerIntegrationTests = {
         opt.files = ['tests/artifacts/zoo.ts'];
         opt.typeStrongOptions.silent = false;
         typestrong_compiler_1.default.compile(opt).then(function (result) {
+            console.log("hi");
             test.strictEqual(result.consoleOutput.stdout.toString(), "");
             test.strictEqual(result.consoleOutput.stderr.toString(), "");
             test.strictEqual(result.consoleOutput.error, null);
+            console.log("bye");
             test.done();
         }, function (error) {
             test.done(error);
@@ -108,17 +111,6 @@ exports.argumentsTests = {
         opt.out = "myOut.js";
         typestrong_compiler_1.default.compile(opt).then(function (result) {
             test.ok(containsSuccessively(result.tscArgs, '--out', 'myOut.js'));
-            test.done();
-        }, function (error) {
-            test.done(error);
-        });
-    },
-    out_with_spaces_is_quoted: function (test) {
-        test.expect(1);
-        var opt = typestrong_compiler_1.default.testCompilerOptions();
-        opt.out = "/out folder/my out file.js";
-        typestrong_compiler_1.default.compile(opt).then(function (result) {
-            test.ok(containsSuccessively(result.tscArgs, '--out', '/out folder/my out file.js'));
             test.done();
         }, function (error) {
             test.done(error);

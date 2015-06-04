@@ -16,3 +16,10 @@ Run `npm run build`.  If successful, the build command should take just a moment
 Test
 ----
 Run `npm run test`.  This will run the nodeunit tests.
+
+Debug
+-----
+
+If you have node-inspector installed, you can debug the tests with this command:
+
+`node-debug --debug-brk ./node_modules/nodeunit/bin/nodeunit tests/tests.js`
