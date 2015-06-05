@@ -20,6 +20,10 @@ Run `npm run test`.  This will run the nodeunit tests.
 Debug
 -----
 
-If you have node-inspector installed, you can debug the tests with this command:
+If you have node-inspector installed, you can debug all tests with this command:
 
 `node-debug --debug-brk ./node_modules/nodeunit/bin/nodeunit tests/tests.js`
+
+To debug a specific test, use this command (for example):
+
+`node-debug --debug-brk ./node_modules/nodeunit/bin/nodeunit tests/tests.js -t can_set_custom_compiler`

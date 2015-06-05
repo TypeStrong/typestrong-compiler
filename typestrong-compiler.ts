@@ -13,43 +13,88 @@ module compiler {
   export function compile(options: i.compilerOptions) : Promise<i.compilerResult> {
     return new Promise<i.compilerResult>((resolve, reject) => {
 
-      var result: i.compilerResult = {
-        tscArgs: [],
-        consoleOutput: null,
-        actualVersion: null,
-        runtimeOptions: {
-          compiler: null
-        }
-      };
+      var result = emptyCompilerResult();
 
       normalizeOptions(options);
       extractAndSetArgs(options, result.tscArgs);
       findTSC.locate(options, result);
-      executeCompile(options, result).then((executeCompileResult) => {
-        resolve(result);
-      }, (executeCompileError) => {
-        reject(executeCompileError);
+      createCommandTempFile(options,result)
+      .then((tempFileName) => {
+          executeCompile(options, result).then(
+            (compileSuccessResult: i.compilerResult) => {
+              attemptToDeleteTempFile(result);
+              resolve(result);
+            },(compileError: any) => {
+              attemptToDeleteTempFile(result);
+              reject(result);
+            });
+      },(tempFileError) => {
+          reject(result);
       });
+
+    });
+  }
+
+  function attemptToDeleteTempFile(result: i.compilerResult) {
+      if (!result.runtimeOptions.commandTempFile) {
+        return;
+      }
+      try {
+        fs.unlinkSync(result.runtimeOptions.commandTempFile);
+      } catch(tempFileEx) {
+        throw new Error('cannot delete temp file for tscommand: ' + tempFileEx.message);
+      }
+  }
+
+  export function emptyCompilerResult() : i.compilerResult {
+    return {
+      tscArgs: [],
+      consoleOutput: null,
+      actualVersion: null,
+      runtimeOptions: {
+        compiler: null,
+        compileResult: null,
+        commandTempFile: null
+      }
+    };
+  }
+
+  function createCommandTempFile(options: i.compilerOptions, results: i.compilerResult): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      let commandTempfile = utils.getTempFile('tscommand');
+      if (!commandTempfile) {
+        reject(new Error('cannot create temp file for tscommand'));
+        return;
+      }
+
+      try {
+        let argsToPass = [results.tscArgs,...options.files].join(' ');
+        if (options.typeStrongOptions.verbose) {
+            console.log("TypeScript Arguments:" + argsToPass);
+        }
+        fs.writeFileSync(commandTempfile, argsToPass);
+        results.runtimeOptions.commandTempFile = commandTempfile;
+        resolve(commandTempfile);
+      } catch(tempFileEx) {
+        reject(new Error('cannot create temp file for tscommand: ' + tempFileEx.message));
+      }
     });
   }
 
   function executeCompile(options: i.compilerOptions, results: i.compilerResult): Promise<i.compilerResult> {
     return new Promise<i.compilerResult>((resolve, reject) => {
-        if (options.testOptions.testOnly) {
+        if (options.testOptions.doNotRunCompiler) {
+          results.runtimeOptions.compileResult = 'Affirmatively skipped';
           resolve(results);
+          return;
         }
 
-        let commandTempfile = utils.getTempFile('tscommand');
-        if (!commandTempfile) {
-          throw new Error('cannot create temp file for tscommand');
-        }
-
-        fs.writeFileSync(commandTempfile,
-          [results.tscArgs,...options.files].join(' ')
-          );
-
-        let tsc = execFile(process.execPath,
-          [results.runtimeOptions.compiler,`@${commandTempfile}`],
+        try {
+          if (options.typeStrongOptions.verbose) {
+              console.log("Running " + process.execPath + " " + results.runtimeOptions.compiler);
+          }
+          let tsc = execFile(process.execPath,
+          [results.runtimeOptions.compiler,`@${results.runtimeOptions.commandTempFile}`],
           (error, stdout, stderr) => {
 
             results.consoleOutput = {
@@ -67,10 +112,16 @@ module compiler {
             }
 
             if (error === null) {
+                results.runtimeOptions.compileResult = "Run";
                 resolve(results);
             }
+            results.runtimeOptions.compileResult = "Run with error";
             reject(results);
           });
+        } catch (execFileEx) {
+          results.runtimeOptions.compileResult = "Run with error";
+          reject(results);
+        }
       });
   }
 
@@ -87,22 +138,25 @@ module compiler {
           silent: true
         },
         testOptions: {
-          testOnly: false
+          doNotRunCompiler: false,
+          doNotSearchForCompiler: false
         },
       };
   }
 
   export function testCompilerOptions() : i.compilerOptions {
       var opt = defaultCompilerOptions();
-      opt.testOptions.testOnly = true;
+      opt.testOptions.doNotRunCompiler = true;
+      opt.testOptions.doNotSearchForCompiler = true;
       return opt;
   }
 
 
   function normalizeOptions(options: i.compilerOptions) {
+      var defaultOptions = defaultCompilerOptions();
       options = options || {};
       options.typeStrongOptions = options.typeStrongOptions || {};
-      options.testOptions = options.testOptions || {testOnly: false};
+      options.testOptions = options.testOptions || defaultOptions.testOptions;
   }
 
   function extractAndSetArgs(options: i.compilerOptions, args: string[]) {

@@ -26,3 +26,4 @@ function getTempFile(prefix, dir, extension) {
     throw 'Cannot create temp file in ' + dir;
 }
 exports.getTempFile = getTempFile;
+//# sourceMappingURL=utils.js.map

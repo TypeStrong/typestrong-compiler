@@ -1,5 +1,6 @@
 "use strict";
 var typestrong_compiler_1 = require('../typestrong-compiler');
+var path = require('path');
 exports.testGroup = {
     setUp: function (callback) {
         callback();
@@ -39,9 +40,10 @@ exports.compilerIntegrationTests = {
     can_resolve_node_modules_compiler: function (test) {
         test.expect(2);
         var opt = typestrong_compiler_1.default.testCompilerOptions();
+        opt.testOptions.doNotSearchForCompiler = false;
         typestrong_compiler_1.default.compile(opt).then(function (result) {
             test.ok(!!result.runtimeOptions.compiler, "expected compiler value");
-            test.strictEqual(result.runtimeOptions.compiler, 'test_tsc', 'expected to find the test_tsc');
+            test.ok(containsSuccessively(result.runtimeOptions.compiler.split(path.sep), 'node_modules', 'typescript', 'bin', 'tsc'), 'expected to find TypeScript compiler under node_modules.');
             test.done();
         }, function (error) {
             test.done(error);
@@ -52,6 +54,7 @@ exports.compilerIntegrationTests = {
         var opt = typestrong_compiler_1.default.defaultCompilerOptions();
         opt.files = ['tests/artifacts/zoo.ts'];
         opt.typeStrongOptions.silent = false;
+        opt.typeStrongOptions.verbose = true;
         typestrong_compiler_1.default.compile(opt).then(function (result) {
             test.strictEqual(result.consoleOutput.stdout.toString(), "");
             test.strictEqual(result.consoleOutput.stderr.toString(), "");
@@ -319,3 +322,4 @@ function containsSuccessively(searchIn, searchFor) {
         return false;
     }
 }
+//# sourceMappingURL=tests.js.map

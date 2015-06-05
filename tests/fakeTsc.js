@@ -4,3 +4,4 @@ if (process.argv.length > 2 && process.argv[2].toLocaleLowerCase() === "--versio
 else {
     console.log("");
 }
+//# sourceMappingURL=fakeTsc.js.map

@@ -48,10 +48,13 @@ export var compilerIntegrationTests: nodeunit.ITestGroup = {
   can_resolve_node_modules_compiler: (test: nodeunit.Test) => {
       test.expect(2);
       let opt = compiler.testCompilerOptions();
+      opt.testOptions.doNotSearchForCompiler = false;
       compiler.compile(opt).then((result) => {
         test.ok(!!result.runtimeOptions.compiler, "expected compiler value");
-        test.strictEqual(result.runtimeOptions.compiler, 'test_tsc',
-          'expected to find the test_tsc');
+        test.ok(containsSuccessively(
+          result.runtimeOptions.compiler.split(path.sep),
+          'node_modules', 'typescript', 'bin', 'tsc'),
+          'expected to find TypeScript compiler under node_modules.');
         test.done();
       }, (error) => {
         test.done(error);
@@ -62,6 +65,7 @@ export var compilerIntegrationTests: nodeunit.ITestGroup = {
       let opt = compiler.defaultCompilerOptions();
       opt.files = ['tests/artifacts/zoo.ts'];
       opt.typeStrongOptions.silent = false;
+      opt.typeStrongOptions.verbose = true;
       compiler.compile(opt).then((result) => {
         test.strictEqual(result.consoleOutput.stdout.toString(),"");
         test.strictEqual(result.consoleOutput.stderr.toString(),"");

@@ -3,8 +3,9 @@ import * as fs from 'fs';
 import i from 'interfaces';
 
 module locateTSC {
+  "use strict";
 
-  // TODO: log the actual version used...
+  // TODO: log the actual version used in verbose mode...
   // grunt.log.writeln('Using tsc v' + pkg.version);
   // var pkg = JSON.parse(fs.readFileSync(path.resolve(binPath, '..', 'package.json')).toString());
 
@@ -18,12 +19,8 @@ module locateTSC {
     if (options.typeStrongOptions.customCompiler) {
       results.runtimeOptions.compiler = options.typeStrongOptions.customCompiler;
     } else {
-      if (options.testOptions.testOnly) {
-        results.runtimeOptions.compiler = "test_tsc";
-      } else {
-        var binPath = resolveTypeScriptBinPath();
-        results.runtimeOptions.compiler = path.join(binPath, 'tsc');
-      }
+      var binPath = resolveTypeScriptBinPath();
+      results.runtimeOptions.compiler = path.join(binPath, 'tsc');
     }
   }
 

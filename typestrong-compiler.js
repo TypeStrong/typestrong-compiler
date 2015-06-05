@@ -9,53 +9,106 @@ var compiler;
     "use strict";
     function compile(options) {
         return new es6_promise_1.Promise(function (resolve, reject) {
-            var result = {
-                tscArgs: [],
-                consoleOutput: null,
-                actualVersion: null,
-                runtimeOptions: {
-                    compiler: null
-                }
-            };
+            var result = emptyCompilerResult();
             normalizeOptions(options);
             extractAndSetArgs(options, result.tscArgs);
             locateTSC_1.default.locate(options, result);
-            executeCompile(options, result).then(function (executeCompileResult) {
-                resolve(result);
-            }, function (executeCompileError) {
-                reject(executeCompileError);
+            createCommandTempFile(options, result)
+                .then(function (tempFileName) {
+                executeCompile(options, result).then(function (compileSuccessResult) {
+                    attemptToDeleteTempFile(result);
+                    resolve(result);
+                }, function (compileError) {
+                    attemptToDeleteTempFile(result);
+                    reject(result);
+                });
+            }, function (tempFileError) {
+                reject(result);
             });
         });
     }
     compiler.compile = compile;
-    function executeCompile(options, results) {
-        return new es6_promise_1.Promise(function (resolve, reject) {
-            if (options.testOptions.testOnly) {
-                resolve(results);
+    function attemptToDeleteTempFile(result) {
+        if (!result.runtimeOptions.commandTempFile) {
+            return;
+        }
+        try {
+            fs.unlinkSync(result.runtimeOptions.commandTempFile);
+        }
+        catch (tempFileEx) {
+            throw new Error('cannot delete temp file for tscommand: ' + tempFileEx.message);
+        }
+    }
+    function emptyCompilerResult() {
+        return {
+            tscArgs: [],
+            consoleOutput: null,
+            actualVersion: null,
+            runtimeOptions: {
+                compiler: null,
+                compileResult: null,
+                commandTempFile: null
             }
+        };
+    }
+    compiler.emptyCompilerResult = emptyCompilerResult;
+    function createCommandTempFile(options, results) {
+        return new es6_promise_1.Promise(function (resolve, reject) {
             var commandTempfile = utils.getTempFile('tscommand');
             if (!commandTempfile) {
-                throw new Error('cannot create temp file for tscommand');
+                reject(new Error('cannot create temp file for tscommand'));
+                return;
             }
-            fs.writeFileSync(commandTempfile, [results.tscArgs].concat(options.files).join(' '));
-            var tsc = child_process_1.execFile(process.execPath, [results.runtimeOptions.compiler, ("@" + commandTempfile)], function (error, stdout, stderr) {
-                results.consoleOutput = {
-                    stdout: stdout,
-                    stderr: stderr,
-                    error: error
-                };
-                if (!options.typeStrongOptions.silent) {
-                    console.log(stdout.toString());
-                    console.log(stderr.toString());
-                    if (error) {
-                        console.log("Error: " + error);
+            try {
+                var argsToPass = [results.tscArgs].concat(options.files).join(' ');
+                if (options.typeStrongOptions.verbose) {
+                    console.log("TypeScript Arguments:" + argsToPass);
+                }
+                fs.writeFileSync(commandTempfile, argsToPass);
+                results.runtimeOptions.commandTempFile = commandTempfile;
+                resolve(commandTempfile);
+            }
+            catch (tempFileEx) {
+                reject(new Error('cannot create temp file for tscommand: ' + tempFileEx.message));
+            }
+        });
+    }
+    function executeCompile(options, results) {
+        return new es6_promise_1.Promise(function (resolve, reject) {
+            if (options.testOptions.doNotRunCompiler) {
+                results.runtimeOptions.compileResult = 'Affirmatively skipped';
+                resolve(results);
+                return;
+            }
+            try {
+                if (options.typeStrongOptions.verbose) {
+                    console.log("Running " + process.execPath + " " + results.runtimeOptions.compiler);
+                }
+                var tsc = child_process_1.execFile(process.execPath, [results.runtimeOptions.compiler, ("@" + results.runtimeOptions.commandTempFile)], function (error, stdout, stderr) {
+                    results.consoleOutput = {
+                        stdout: stdout,
+                        stderr: stderr,
+                        error: error
+                    };
+                    if (!options.typeStrongOptions.silent) {
+                        console.log(stdout.toString());
+                        console.log(stderr.toString());
+                        if (error) {
+                            console.log("Error: " + error);
+                        }
                     }
-                }
-                if (error === null) {
-                    resolve(results);
-                }
+                    if (error === null) {
+                        results.runtimeOptions.compileResult = "Run";
+                        resolve(results);
+                    }
+                    results.runtimeOptions.compileResult = "Run with error";
+                    reject(results);
+                });
+            }
+            catch (execFileEx) {
+                results.runtimeOptions.compileResult = "Run with error";
                 reject(results);
-            });
+            }
         });
     }
     function bufferAsStringArray(theBuffer) {
@@ -70,21 +123,24 @@ var compiler;
                 silent: true
             },
             testOptions: {
-                testOnly: false
+                doNotRunCompiler: false,
+                doNotSearchForCompiler: false
             },
         };
     }
     compiler.defaultCompilerOptions = defaultCompilerOptions;
     function testCompilerOptions() {
         var opt = defaultCompilerOptions();
-        opt.testOptions.testOnly = true;
+        opt.testOptions.doNotRunCompiler = true;
+        opt.testOptions.doNotSearchForCompiler = true;
         return opt;
     }
     compiler.testCompilerOptions = testCompilerOptions;
     function normalizeOptions(options) {
+        var defaultOptions = defaultCompilerOptions();
         options = options || {};
         options.typeStrongOptions = options.typeStrongOptions || {};
-        options.testOptions = options.testOptions || { testOnly: false };
+        options.testOptions = options.testOptions || defaultOptions.testOptions;
     }
     function extractAndSetArgs(options, args) {
         var maybePushToArgs = _.partial(ifTruthyPush, args);
@@ -125,3 +181,4 @@ var compiler;
     }
 })(compiler || (compiler = {}));
 exports.default = compiler;
+//# sourceMappingURL=typestrong-compiler.js.map

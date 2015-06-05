@@ -1,11 +1,13 @@
 declare module interfaces {
     interface compilerOptions {
         testOptions?: {
-            testOnly: boolean;
+            doNotRunCompiler: boolean;
+            doNotSearchForCompiler: boolean;
         };
         typeStrongOptions?: {
             customCompiler?: string;
             silent?: boolean;
+            verbose?: boolean;
         };
         target?: string;
         removeComments?: boolean;
@@ -29,7 +31,9 @@ declare module interfaces {
         files?: string[];
     }
     interface runtimeOptions {
+        compileResult: string;
         compiler: string;
+        commandTempFile: string;
     }
     interface compilerResult {
         tscArgs: string[];
